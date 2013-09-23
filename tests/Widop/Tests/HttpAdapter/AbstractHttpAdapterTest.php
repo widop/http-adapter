@@ -81,13 +81,24 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testPostContentWithHeadersAndData()
+    public function testPostContentWithHeadersAndStringData()
     {
         $this->assertNotEmpty(
             $this->httpAdapter->postContent(
                 'http://www.widop.com',
                 array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8'),
                 http_build_query(array('param' => 'value'))
+            )
+        );
+    }
+
+    public function testPostContentWithHeadersAndArrayData()
+    {
+        $this->assertNotEmpty(
+            $this->httpAdapter->postContent(
+                'http://www.widop.com',
+                array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8'),
+                array('param' => 'value')
             )
         );
     }

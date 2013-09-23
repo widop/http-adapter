@@ -33,7 +33,7 @@ class CurlHttpAdapter implements HttpAdapterInterface
     {
         return $this->execute($url, $headers, $content, function ($curl) use ($content) {
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, is_array($content) ? http_build_query($content) : $content);
         });
     }
 

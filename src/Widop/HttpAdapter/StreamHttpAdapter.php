@@ -108,6 +108,10 @@ class StreamHttpAdapter implements HttpAdapterInterface
 
         // Sets POST data
         if ($method === 'POST') {
+            if (is_array($content)) {
+                $content = http_build_query($content);
+            }
+
             $contextOptions['http']['content'] = $content;
 
             if (!$this->headerKeyMatches($rationalizedHeaders, 'Content-Length')) {

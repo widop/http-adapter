@@ -38,9 +38,9 @@ interface HttpAdapterInterface
     /**
      * Gets the content fetched from the given url & POST datas.
      *
-     * @param string $url     The URL to request.
-     * @param array  $headers HTTP headers (optional).
-     * @param string $content The POST content (optional).
+     * @param string       $url     The URL to request.
+     * @param array        $headers HTTP headers (optional).
+     * @param string|array $content The POST content (optional).
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
