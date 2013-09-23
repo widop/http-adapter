@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 1.0.1 (????-??-??)
+### 1.0.1 (2013-09-23)
 
  * 4570f87 - Fix Curl & Stream adpaters with post array data
 
