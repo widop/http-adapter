@@ -33,49 +33,4 @@ class HttpAdapterException extends \Exception
             sprintf('Cannot fetch URL "%s" with adapter "%s" ("%s").', $url, $adapter, $info)
         );
     }
-
-    /**
-     * Gets the "Cannot open URL ..." exception.
-     *
-     * @param string $url     An URL.
-     * @param string $adapter The adapter name.
-     * @param string $info    Additional information about the error.
-     *
-     * @return \Widop\HttpAdapterBundle\Exception\HttpAdapterException An exception.
-     */
-    public static function cannotOpenUrl($url, $adapter, $info)
-    {
-        return new self(
-            sprintf('Cannot open URL "%s" with adapter "%s" ("%s").', $url, $adapter, $info)
-        );
-    }
-
-    /**
-     * Gets the "Invalid header ..." exception.
-     *
-     * @param string $header A header.
-     * @param string $info   Additional information.
-     *
-     * @return \Widop\HttpAdapterBundle\Exception\HttpAdapterException An exception.
-     */
-    public static function invalidHeader($header, $info)
-    {
-        return new self(
-            sprintf('Invalid header "%s" ("%s").', $header, $info)
-        );
-    }
-
-    /**
-     * Gets the "Invalid callback" exception.
-     *
-     * @param mixed $callback An invalid callback.
-     *
-     * @return \Widop\HttpAdapterBundle\Exception\HttpAdapterException An exception.
-     */
-    public static function invalidCallback($callback)
-    {
-        return new self(
-            sprintf('Cannot use callback of type %s.', gettype($callback))
-        );
-    }
 }

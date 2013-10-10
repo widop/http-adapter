@@ -16,7 +16,7 @@ namespace Widop\HttpAdapter;
  *
  * @author GeLo <geloen.eric@gmail.com>
  */
-class CurlHttpAdapter implements HttpAdapterInterface
+class CurlHttpAdapter extends AbstractHttpAdapter
 {
     /**
      * {@inheritdoc}
@@ -49,17 +49,16 @@ class CurlHttpAdapter implements HttpAdapterInterface
      */
     protected function execute($url, array $headers = array(), $content = '', $callback = null)
     {
-        $curl = $this->initCurl();
+        $curl = curl_init();
 
-        $this->setHeaders($curl, $headers);
+        curl_setopt($curl, CURLOPT_URL, $this->fixUrl($url));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
-        curl_setopt($curl, CURLOPT_URL, $url);
+        if (!empty($headers)) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $this->fixHeaders($headers));
+        }
 
         if ($callback !== null) {
-            if (!is_callable($callback)) {
-                throw HttpAdapterException::invalidCallback($callback);
-            }
-
             call_user_func($callback, $curl);
         }
 
@@ -84,41 +83,5 @@ class CurlHttpAdapter implements HttpAdapterInterface
     public function getName()
     {
         return 'curl';
-    }
-
-    /**
-     * Initializes cUrl.
-     *
-     * @return resource The curl resource.
-     */
-    protected function initCurl()
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-        return $curl;
-    }
-
-    /**
-     * Fixes the headers to match the cUrl format and set them.
-     *
-     * @param resource $curl    The curl resource.
-     * @param array    $headers An array of headers.
-     */
-    protected function setHeaders($curl, array $headers)
-    {
-        $fixedHeaders = array();
-
-        foreach ($headers as $key => $value) {
-            if (is_int($key)) {
-                $fixedHeaders[] = $value;
-            } else {
-                $fixedHeaders[] = $key.':'.$value;
-            }
-        }
-
-        if (!empty($fixedHeaders)) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $fixedHeaders);
-        }
     }
 }
