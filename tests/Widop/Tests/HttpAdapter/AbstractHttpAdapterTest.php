@@ -29,22 +29,6 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
         unset($this->httpAdapter);
     }
 
-    /**
-     * Changes the visibility of an HTTP adapter method to public.
-     *
-     * @param string $methodName The method name.
-     *
-     * @return \ReflectionMethod A reflection method.
-     */
-    protected function getHttpAdapterReflectionMethod($methodName)
-    {
-        $method = new \ReflectionMethod(get_class($this->httpAdapter), $methodName);
-
-        $method->setAccessible(true);
-
-        return $method;
-    }
-
     abstract public function testName();
 
     public function testGetContentWithoutHeaders()
