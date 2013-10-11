@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the Wid'op package.
+ * This file is part of the Widop package.
  *
- * (c) Wid'op <contact@widop.com>
+ * (c) Widop <contact@widop.com>
  *
  * For the full copyright and license information, please read the LICENSE
  * file that was distributed with this source code.
@@ -11,25 +11,25 @@
 
 namespace Widop\HttpAdapter;
 
-use Guzzle\Http\Client;
-use Guzzle\Http\ClientInterface;
+use Widop\HttpAdapter\HttpAdapterException;
+use Zend\Http\Client;
 
 /**
- * Guzzle Http adapter.
+ * Zend http adapter.
  *
- * @author Gunnar Lium <gunnarlium@gmail.com>
+ * @author GeLo <geloen.eric@gmail.com>
  */
-class GuzzleHttpAdapter implements HttpAdapterInterface
+class ZendHttpAdapter extends AbstractHttpAdapter
 {
-    /** @var \Guzzle\Http\ClientInterface */
+    /** @var \Zend\Http\Client */
     private $client;
 
     /**
-     * Creates a guzzle adapter.
+     * Creates a Zend http adapter.
      *
-     * @param \Guzzle\Http\ClientInterface $client The guzzle client.
+     * @param \Zend\Http\Client $client The Zend client.
      */
-    public function __construct(ClientInterface $client = null)
+    public function __construct(Client $client = null)
     {
         if ($client === null) {
             $client = new Client();
@@ -44,7 +44,11 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     public function getContent($url, array $headers = array())
     {
         try {
-            return $this->client->get($url, $headers)->send()->getBody(true);
+            return $this->client
+                ->setUri($url)
+                ->setHeaders($headers)
+                ->send()
+                ->getBody();
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -56,7 +60,12 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     public function postContent($url, array $headers = array(), $content = '')
     {
         try {
-            return $this->client->post($url, $headers, $content)->send()->getBody(true);
+            return $this->client
+                ->setUri($url)
+                ->setHeaders($headers)
+                ->setRawBody($this->fixContent($content))
+                ->send()
+                ->getBody();
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -67,6 +76,6 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
      */
     public function getName()
     {
-        return 'guzzle';
+        return 'zend';
     }
 }

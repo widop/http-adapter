@@ -4,10 +4,11 @@
 
 The library allows to issue HTTP requests with PHP 5.3+. Currently, the supported adapters are:
 
- - [Buzz](https://github.com/kriswallsmith/Buzz)
  - [cURL](http://curl.haxx.se/)
  - [Stream](http://php.net/manual/en/book.stream.php)
+ - [Buzz](https://github.com/kriswallsmith/Buzz)
  - [Guzzle](http://guzzlephp.org/)
+ - [Zend](http://framework.zend.com/manual/2.0/en/modules/zend.http.client.html)
 
 Documentation
 -------------

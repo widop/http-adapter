@@ -19,13 +19,16 @@
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "kriswallsmith/buzz": "0.*",
-        "guzzle/guzzle": "*"
+        "ext-curl": "*",
+        "kriswallsmith/buzz": "*",
+        "guzzle/guzzle": "*",
+        "zendframework/zend-http": "*"
     },
     "suggest": {
         "ext-curl": "Allows you to use cURL adapter",
         "kriswallsmith/buzz": "Allows you to use Buzz adapter",
-        "guzzle/guzzle": "Allows you to use Guzzle adapter"
+        "guzzle/guzzle": "Allows you to use Guzzle adapter",
+        "zendframework/zend-http": "Allows you to use Zend adapter"
     },
     "autoload": {
         "psr-0": { "Widop\\HttpAdapter": "src/" }

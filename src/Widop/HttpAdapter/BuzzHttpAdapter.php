@@ -43,12 +43,10 @@ class BuzzHttpAdapter implements HttpAdapterInterface
     public function getContent($url, array $headers = array())
     {
         try {
-            $response = $this->browser->get($url, $headers);
+            return $this->browser->get($url, $headers)->getContent();
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
-
-        return $response->getContent();
     }
 
     /**
@@ -57,12 +55,10 @@ class BuzzHttpAdapter implements HttpAdapterInterface
     public function postContent($url, array $headers = array(), $content = '')
     {
         try {
-            $response = $this->browser->post($url, $headers, $content);
+            return $this->browser->post($url, $headers, $content)->getContent();
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
-
-        return $response->getContent();
     }
 
     /**

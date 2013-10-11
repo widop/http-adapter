@@ -31,9 +31,11 @@ class CurlHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), $content = '')
     {
+        $content = $this->fixContent($content);
+
         return $this->execute($url, $headers, $content, function ($curl) use ($content) {
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, is_array($content) ? http_build_query($content) : $content);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
         });
     }
 
