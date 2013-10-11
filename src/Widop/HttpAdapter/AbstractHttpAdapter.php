@@ -55,4 +55,16 @@ abstract class AbstractHttpAdapter implements HttpAdapterInterface
 
         return $fixedHeaders;
     }
+
+    /**
+     * Fixes the content to match the http format.
+     *
+     * @param array|string $content The content.
+     *
+     * @return string The content.
+     */
+    protected function fixContent($content)
+    {
+        return is_array($content) ? http_build_query($content) : $content;
+    }
 }

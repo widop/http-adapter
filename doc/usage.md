@@ -4,6 +4,22 @@
 
 In order to make an http request, you need to create an adapter.
 
+### cURL
+
+``` php
+use Widop\HttpAdapter\CurlHttpAdapter;
+
+$curlHttpAdapter = new CurlHttpAdapter();
+```
+
+### Stream
+
+``` php
+use Widop\HttpAdapter\StreamHttpAdapter;
+
+$streamHttpAdapter = new StreamHttpAdapter();
+```
+
 ### Buzz
 
 ``` php
@@ -20,14 +36,6 @@ use Widop\HttpAdapter\BuzzHttpAdapter;
 
 $browser = new Browser();
 $buzzHttpAdapter = new BuzzHttpAdapter($browser);
-```
-
-### cURL
-
-``` php
-use Widop\HttpAdapter\CurlHttpAdapter;
-
-$curlHttpAdapter = new CurlHttpAdapter();
 ```
 
 ### Guzzle
@@ -48,12 +56,22 @@ $client = new Client();
 $guzzleHttpAdapter = new GuzzleHttpAdapter($client);
 ```
 
-### Stream
+## Zend
 
 ``` php
-use Widop\HttpAdapter\StreamHttpAdapter;
+use Widop\HttpAdapter\ZendHttpAdapter;
 
-$streamHttpAdapter = new StreamHttpAdapter();
+$zendHttpAdapter = new ZendHttpAdapter();
+```
+
+or
+
+``` php
+use Widop\HttpAdapter\ZendHttpAdapter;
+use Zend\Http\Client;
+
+$client = new Client();
+$zendHttpAdapter = new ZendHttpAdapter($client);
 ```
 
 ## Make a GET request
@@ -87,5 +105,5 @@ $content = $httpAdapter->postContent($url, $headers);
 If you would like to pass POST datas, you use the third argument:
 
 ``` php
-$content = $httpAdapter->getContent($url, $headers, $data);
+$content = $httpAdapter->postContent($url, $headers, $data);
 ```

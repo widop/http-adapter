@@ -88,11 +88,7 @@ class StreamHttpAdapter extends AbstractHttpAdapter
         }
 
         if ($method === 'POST') {
-            if (is_array($content)) {
-                $content = http_build_query($content);
-            }
-
-            $contextOptions['http']['content'] = $content;
+            $contextOptions['http']['content'] = $this->fixContent($content);
         }
 
         return stream_context_create($contextOptions);
