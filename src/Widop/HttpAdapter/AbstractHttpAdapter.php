@@ -18,6 +18,39 @@ namespace Widop\HttpAdapter;
  */
 abstract class AbstractHttpAdapter implements HttpAdapterInterface
 {
+    /** @var integer */
+    private $maxRedirects;
+
+    /**
+     * Creates an Http adapter.
+     *
+     * @param integer $maxRedirects The maximum redirects.
+     */
+    public function __construct($maxRedirects = 5)
+    {
+        $this->setMaxRedirects($maxRedirects);
+    }
+
+    /**
+     * Gets the maximum redirects.
+     *
+     * @return integer The maximum redirects.
+     */
+    public function getMaxRedirects()
+    {
+        return $this->maxRedirects;
+    }
+
+    /**
+     * Sets the maximum redirects.
+     *
+     * @param integer $maxRedirects The maximum redirects.
+     */
+    public function setMaxRedirects($maxRedirects)
+    {
+        $this->maxRedirects = $maxRedirects;
+    }
+
     /**
      * Fixes the URL to match the http format.
      *

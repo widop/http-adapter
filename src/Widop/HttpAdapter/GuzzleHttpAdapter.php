@@ -13,13 +13,14 @@ namespace Widop\HttpAdapter;
 
 use Guzzle\Http\Client;
 use Guzzle\Http\ClientInterface;
+use Guzzle\Http\Message\RequestInterface ;
 
 /**
  * Guzzle Http adapter.
  *
  * @author Gunnar Lium <gunnarlium@gmail.com>
  */
-class GuzzleHttpAdapter implements HttpAdapterInterface
+class GuzzleHttpAdapter extends AbstractHttpAdapter
 {
     /** @var \Guzzle\Http\ClientInterface */
     private $client;
@@ -27,10 +28,13 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     /**
      * Creates a guzzle adapter.
      *
-     * @param \Guzzle\Http\ClientInterface $client The guzzle client.
+     * @param \Guzzle\Http\ClientInterface $client       The guzzle client.
+     * @param integer                      $maxRedirects The maximum redirects.
      */
-    public function __construct(ClientInterface $client = null)
+    public function __construct(ClientInterface $client = null, $maxRedirects = 5)
     {
+        parent::__construct($maxRedirects);
+
         if ($client === null) {
             $client = new Client();
         }
@@ -44,7 +48,10 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     public function getContent($url, array $headers = array())
     {
         try {
-            return $this->client->get($url, $headers)->send()->getBody(true);
+            $request = $this->client->get($url, $headers);
+            $this->configure($request);
+
+            return $request->send()->getBody(true);
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -56,7 +63,10 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     public function postContent($url, array $headers = array(), $content = '')
     {
         try {
-            return $this->client->post($url, $headers, $content)->send()->getBody(true);
+            $request = $this->client->post($url, $headers, $content);
+            $this->configure($request);
+
+            return $request->send()->getBody(true);
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -68,5 +78,15 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     public function getName()
     {
         return 'guzzle';
+    }
+
+    /**
+     * Configures the guzzle request.
+     *
+     * @param \Guzzle\Http\Message\RequestInterface $request The request.
+     */
+    private function configure(RequestInterface $request)
+    {
+        $request->getParams()->set('redirect.max', $this->getMaxRedirects());
     }
 }

@@ -87,6 +87,11 @@ class StreamHttpAdapter extends AbstractHttpAdapter
             }
         }
 
+        if ($this->getMaxRedirects() > 0) {
+            $contextOptions['http']['follow_location'] = 1;
+            $contextOptions['http']['max_redirects'] = $this->getMaxRedirects();
+        }
+
         if ($method === 'POST') {
             $contextOptions['http']['content'] = $this->fixContent($content);
         }

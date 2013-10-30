@@ -27,10 +27,13 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * Creates a Zend http adapter.
      *
-     * @param \Zend\Http\Client $client The Zend client.
+     * @param \Zend\Http\Client $client       The Zend client.
+     * @param integer           $maxRedirects The max redirects.
      */
-    public function __construct(Client $client = null)
+    public function __construct(Client $client = null, $maxRedirects = 5)
     {
+        parent::__construct($maxRedirects);
+
         if ($client === null) {
             $client = new Client();
         }
@@ -43,6 +46,8 @@ class ZendHttpAdapter extends AbstractHttpAdapter
      */
     public function getContent($url, array $headers = array())
     {
+        $this->configure();
+
         try {
             return $this->client
                 ->setUri($url)
@@ -59,6 +64,8 @@ class ZendHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), $content = '')
     {
+        $this->configure();
+
         try {
             return $this->client
                 ->setUri($url)
@@ -77,5 +84,13 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     public function getName()
     {
         return 'zend';
+    }
+
+    /**
+     * Configures the Zend Http Client.
+     */
+    private function configure()
+    {
+        $this->client->setOptions(array('maxredirects' => $this->getMaxRedirects()));
     }
 }

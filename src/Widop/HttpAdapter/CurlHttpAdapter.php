@@ -56,6 +56,11 @@ class CurlHttpAdapter extends AbstractHttpAdapter
         curl_setopt($curl, CURLOPT_URL, $this->fixUrl($url));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
+        if ($this->getMaxRedirects() > 0) {
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_MAXREDIRS, $this->getMaxRedirects());
+        }
+
         if (!empty($headers)) {
             curl_setopt($curl, CURLOPT_HTTPHEADER, $this->fixHeaders($headers));
         }
