@@ -2,6 +2,7 @@
 
 ### 1.0.2 (????-??-??)
 
+ * 29218fb - Add redirect support
  * 3a25fc3 - Add Zend http adapter support
 
 ### 1.0.1 (2013-09-23)
