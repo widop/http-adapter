@@ -32,4 +32,13 @@ class StreamHttpAdapterTest extends AbstractHttpAdapterTest
     {
         $this->assertSame('stream', $this->httpAdapter->getName());
     }
+
+    /**
+     * @expectedException \Widop\HttpAdapter\HttpAdapterException
+     * @expectedExceptionMessage The "Widop\HttpAdapter\StreamHttpAdapter" does not support files.
+     */
+    public function testPostContentWithHeadersAndContentAndFiles()
+    {
+        parent::testPostContentWithHeadersAndContentAndFiles();
+    }
 }

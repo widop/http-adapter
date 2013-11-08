@@ -60,12 +60,16 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), $content = '')
+    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        try {
-            $request = $this->client->post($url, $headers, $content);
-            $this->configure($request);
+        $request = $this->client->post($url, $headers, $content);
+        $this->configure($request);
 
+        foreach ($files as $key => $file) {
+            $request->addPostFile($key, $file);
+        }
+
+        try {
             return $request->send()->getBody(true);
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());

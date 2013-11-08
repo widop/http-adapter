@@ -82,7 +82,7 @@ Each adapter allows you to make a GET request:
 $content = $httpAdapter->getContent($url);
 ```
 
-If you would like to pass custom headers, you can use the second argument:
+If you want to pass custom headers, you can use the second argument:
 
 ``` php
 $content = $httpAdapter->getContent($url, $headers);
@@ -96,14 +96,20 @@ Each adapter allows you to make a POST request:
 $content = $httpAdapter->postContent($url);
 ```
 
-If you would like to pass custom headers, you can use the second argument:
+If you want to pass custom headers, you can use the second argument:
 
 ``` php
 $content = $httpAdapter->postContent($url, $headers);
 ```
 
-If you would like to pass POST datas, you use the third argument:
+If you want to pass POST datas, you can use the third argument:
 
 ``` php
 $content = $httpAdapter->postContent($url, $headers, $data);
+```
+
+If you want to pass POST files, you can use the fourth argument:
+
+``` php
+$content = $httpAdapter->postContent($url, $headers, $data, $files);
 ```
