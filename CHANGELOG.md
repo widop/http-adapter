@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 1.1.0 (????-??-??)
+
+ * 04cfb94 - Add POST files support
+
 ### 1.0.2 (2013-10-30)
 
  * 29218fb - Add redirect support
