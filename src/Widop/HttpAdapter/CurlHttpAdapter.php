@@ -29,13 +29,23 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), $content = '')
+    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        $content = $this->fixContent($content);
+        $fixedContent = $this->fixContent($content);
 
-        return $this->execute($url, $headers, $content, function ($curl) use ($content) {
+        return $this->execute($url, $headers, $content, function ($curl) use ($content, $files, $fixedContent) {
+            if (!empty($files)) {
+                if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+                    $post = array_merge($content, array_map(function($file) { return new \CURLFile($file); }, $files));
+                } else {
+                    $post = array_merge($content, array_map(function($file) { return '@'.$file; }, $files));
+                }
+            } else {
+                $post = $fixedContent;
+            }
+
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
         });
     }
 
@@ -44,12 +54,12 @@ class CurlHttpAdapter extends AbstractHttpAdapter
      *
      * @param string   $url      A valid URL.
      * @param array    $headers  Http headers.
-     * @param string   $content  Http content (in case of POST method).
+     * @param array    $content  Http content (in case of POST method).
      * @param callable $callback A callable function.
      *
      * @return string The response content.
      */
-    protected function execute($url, array $headers = array(), $content = '', $callback = null)
+    protected function execute($url, array $headers = array(), array $content = array(), $callback = null)
     {
         $curl = curl_init();
 

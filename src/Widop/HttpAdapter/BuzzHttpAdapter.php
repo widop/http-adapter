@@ -57,12 +57,17 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), $content = '')
+    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
         $this->configure();
+        $post = $content;
+
+        if (!empty($files)) {
+            $post = array_merge($post, array_map(function($file) { return '@'.$file; }, $files));
+        }
 
         try {
-            return $this->browser->post($url, $headers, $content)->getContent();
+            return $this->browser->post($url, $headers, $post)->getContent();
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }

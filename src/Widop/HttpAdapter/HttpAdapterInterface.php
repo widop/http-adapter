@@ -38,15 +38,16 @@ interface HttpAdapterInterface
     /**
      * Gets the content fetched from the given url & POST datas.
      *
-     * @param string       $url     The URL to request.
-     * @param array        $headers HTTP headers (optional).
-     * @param string|array $content The POST content (optional).
+     * @param string $url     The URL to request.
+     * @param array  $headers HTTP headers (optional).
+     * @param array  $content The POST content (optional).
+     * @param array  $files   The POST files (optional).
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
      * @return string The fetched content.
      */
-    function postContent($url, array $headers = array(), $content = '');
+    function postContent($url, array $headers = array(), array $content = array(), array $files = array());
 
     /**
      * Gets the name of the Http adapter.

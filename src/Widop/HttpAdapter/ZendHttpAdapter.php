@@ -62,17 +62,22 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), $content = '')
+    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
         $this->configure();
 
+        $request = $this->client
+            ->setMethod('POST')
+            ->setUri($url)
+            ->setHeaders($headers)
+            ->setParameterPost($content);
+
+        foreach ($files as $key => $file) {
+            $request->setFileUpload($file, $key);
+        }
+
         try {
-            return $this->client
-                ->setUri($url)
-                ->setHeaders($headers)
-                ->setRawBody($this->fixContent($content))
-                ->send()
-                ->getBody();
+            return $request->send()->getBody();
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }

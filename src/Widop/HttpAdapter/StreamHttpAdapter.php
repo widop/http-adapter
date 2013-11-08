@@ -11,6 +11,8 @@
 
 namespace Widop\HttpAdapter;
 
+use Widop\HttpAdapter\HttpAdapterException;
+
 /**
  * Stream Http adapter.
  *
@@ -30,9 +32,9 @@ class StreamHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), $content = '')
+    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        return $this->execute($url, $this->createStreamContext('POST', $headers, $content));
+        return $this->execute($url, $this->createStreamContext('POST', $headers, $content, $files));
     }
 
     /**
@@ -69,14 +71,21 @@ class StreamHttpAdapter extends AbstractHttpAdapter
     /**
      * Creates the stream context.
      *
-     * @param string       $method  The HTTP method.
-     * @param array        $headers The headers.
-     * @param string|array $content The content.
+     * @param string $method  The HTTP method.
+     * @param array  $headers The headers.
+     * @param array  $content The content.
+     * @param array  $files   The files.
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If there are files (not supported).
      *
      * @return resource A stream context resource.
      */
-    protected function createStreamContext($method, array $headers, $content = '')
+    protected function createStreamContext($method, array $headers, array $content = array(), array $files = array())
     {
+        if (!empty($files)) {
+            throw new HttpAdapterException(sprintf('The "%s" does not support files.', __CLASS__));
+        }
+
         $contextOptions = array('http' => array('method' => $method));
 
         if (!empty($headers)) {
