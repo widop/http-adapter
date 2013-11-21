@@ -24,36 +24,54 @@ class StreamHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function getContent($url, array $headers = array())
+    public function getContent($url, array $headers = array(), $persistentCallback = null)
     {
-        return $this->execute($url, $this->createStreamContext('GET', $headers));
+        return $this->execute($url, $this->createStreamContext('GET', $headers), $persistentCallback);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
-    {
-        return $this->execute($url, $this->createStreamContext('POST', $headers, $content, $files));
+    public function postContent(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array(),
+        $persistentCallback = null
+    ) {
+        return $this->execute(
+            $url,
+            $this->createStreamContext('POST', $headers, $content, $files),
+            $persistentCallback
+        );
     }
 
     /**
      * Calls an URL given a context.
      *
-     * @param string   $url     An url.
-     * @param resource $context A resource (created from stream_context_create).
+     * @param string   $url                An url.
+     * @param resource $context            A resource (created from stream_context_create).
+     * @param callable $persistentCallback The persistent callback.
      *
      * @throws \Widop\HttpAdapterBundle\Exception\HttpAdapterException If an error occured.
      *
      * @return @return \Widop\HttpAdapter\Response The response.
      */
-    protected function execute($url, $context)
+    protected function execute($url, $context, $persistentCallback = null)
     {
-        if (($fp = @fopen($this->fixUrl($url), 'rb', false, $context)) === false) {
+        if (($resource = @fopen($this->fixUrl($url), 'rb', false, $context)) === false) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), print_r(error_get_last(), true));
         }
 
-        $metadata = stream_get_meta_data($fp);
+        if ($persistentCallback !== null) {
+            while (($line = stream_get_line($resource, 4096)) !== false) {
+                $persistentCallback($line);
+            }
+
+            return;
+        }
+
+        $metadata = stream_get_meta_data($resource);
 
         if (preg_match_all('#Location:([^,]+)#', implode(',', $metadata['wrapper_data']), $matches)) {
             $effectiveUrl = trim($matches[1][count($matches[1]) - 1]);
@@ -61,9 +79,9 @@ class StreamHttpAdapter extends AbstractHttpAdapter
             $effectiveUrl = $url;
         }
 
-        $content = stream_get_contents($fp);
+        $content = stream_get_contents($resource);
 
-        fclose($fp);
+        fclose($resource);
 
         return $this->createResponse($url, $content, $effectiveUrl);
     }

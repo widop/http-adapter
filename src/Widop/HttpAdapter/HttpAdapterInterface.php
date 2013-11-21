@@ -26,28 +26,36 @@ interface HttpAdapterInterface
     /**
      * Gets the content fetched from the given URL.
      *
-     * @param string $url     The URL to request.
-     * @param array  $headers HTTP headers (optionnal).
+     * @param string   $url                The URL to request.
+     * @param array    $headers            HTTP headers (optionnal).
+     * @param callable $persistentCallback The persistent callback.
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
-     * @return \Widop\HttpAdapter\Response The fetched response.
+     * @return null|\Widop\HttpAdapter\Response The fetched response.
      */
-    function getContent($url, array $headers = array());
+    function getContent($url, array $headers = array(), $persistentCallback = null);
 
     /**
      * Gets the content fetched from the given url & POST datas.
      *
-     * @param string $url     The URL to request.
-     * @param array  $headers HTTP headers (optional).
-     * @param array  $content The POST content (optional).
-     * @param array  $files   The POST files (optional).
+     * @param string   $url                The URL to request.
+     * @param array    $headers            HTTP headers (optional).
+     * @param array    $content            The POST content (optional).
+     * @param array    $files              The POST files (optional).
+     * @param callable $persistentCallback The persistent callback.
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
-     * @return string The fetched content.
+     * @return string|null The fetched content.
      */
-    function postContent($url, array $headers = array(), array $content = array(), array $files = array());
+    function postContent(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array(),
+        $persistentCallback = null
+    );
 
     /**
      * Gets the name of the Http adapter.

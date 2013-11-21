@@ -44,9 +44,9 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function getContent($url, array $headers = array())
+    public function getContent($url, array $headers = array(), $persistentCallback = null)
     {
-        $this->configure();
+        $this->configure($persistentCallback);
 
         try {
             return $this->createResponse($url, $this->client->setUri($url)->setHeaders($headers)->send()->getBody());
@@ -58,9 +58,14 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
-    {
-        $this->configure();
+    public function postContent(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array(),
+        $persistentCallback = null
+    ) {
+        $this->configure($persistentCallback);
 
         $request = $this->client
             ->setMethod('POST')
@@ -89,9 +94,17 @@ class ZendHttpAdapter extends AbstractHttpAdapter
 
     /**
      * Configures the Zend Http Client.
+     *
+     * FIXME - Find how pass the persitent callback to the adapter...
+     *
+     * @param callable|null $persistentCallback The persistent callback.
      */
-    private function configure()
+    private function configure($persistentCallback = null)
     {
-        $this->client->setOptions(array('maxredirects' => $this->getMaxRedirects()));
+        $this->client
+            ->setOptions(array(
+                'maxredirects' => $this->getMaxRedirects(),
+//                'persistent'   => $persistentCallback !== null,
+            ));
     }
 }

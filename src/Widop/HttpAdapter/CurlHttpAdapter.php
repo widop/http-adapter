@@ -21,46 +21,55 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function getContent($url, array $headers = array())
+    public function getContent($url, array $headers = array(), $persistentCallback = null)
     {
-        return $this->execute($url, $headers);
+        return $this->execute($url, $headers, array(), null, $persistentCallback);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
-    {
-        $fixedContent = $this->fixContent($content);
+    public function postContent(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array(),
+        $persistentCallback = null
+    ) {
+        $post = $this->fixContent($content);
 
-        return $this->execute($url, $headers, $content, function ($curl) use ($content, $files, $fixedContent) {
+        return $this->execute($url, $headers, $content, function ($curl) use ($content, $files, $post) {
             if (!empty($files)) {
                 if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
                     $post = array_merge($content, array_map(function($file) { return new \CURLFile($file); }, $files));
                 } else {
                     $post = array_merge($content, array_map(function($file) { return '@'.$file; }, $files));
                 }
-            } else {
-                $post = $fixedContent;
             }
 
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
-        });
+        }, $persistentCallback);
     }
 
     /**
      * Fetches a response from an URL.
      *
-     * @param string   $url      A valid URL.
-     * @param array    $headers  Http headers.
-     * @param array    $content  Http content (in case of POST method).
-     * @param callable $callback A callable function.
+     * @param string   $url                A valid URL.
+     * @param array    $headers            Http headers.
+     * @param array    $content            Http content (in case of POST method).
+     * @param callable $extraCallback      An extra callable function.
+     * @param callable $persistentCallback The persistent callback.
      *
-     * @return \Widop\HttpAdapter\Response The response.
+     * @return null|\Widop\HttpAdapter\Response The response.
      */
-    protected function execute($url, array $headers = array(), array $content = array(), $callback = null)
-    {
+    protected function execute(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        $extraCallback = null,
+        $persistentCallback = null
+    ) {
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_URL, $this->fixUrl($url));
@@ -75,8 +84,12 @@ class CurlHttpAdapter extends AbstractHttpAdapter
             curl_setopt($curl, CURLOPT_HTTPHEADER, $this->fixHeaders($headers));
         }
 
-        if ($callback !== null) {
-            call_user_func($callback, $curl);
+        if ($extraCallback !== null) {
+            $extraCallback($curl);
+        }
+
+        if ($persistentCallback !== null) {
+            curl_setopt($curl, CURLOPT_WRITEFUNCTION, $this->createCurlPersistentCallback($persistentCallback));
         }
 
         $content = curl_exec($curl);

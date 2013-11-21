@@ -102,6 +102,22 @@ abstract class AbstractHttpAdapter implements HttpAdapterInterface
     }
 
     /**
+     * Creates a cURL persistent callback.
+     *
+     * @param callable $persistentCallback The persistent callback.
+     *
+     * @return callable The cURL persistent callback.
+     */
+    protected function createCurlPersistentCallback($persistentCallback)
+    {
+        return function ($curl, $value) use ($persistentCallback) {
+            $persistentCallback($value);
+
+            return strlen($value);
+        };
+    }
+
+    /**
      * Creates an Http response.
      *
      * @param string      $url          The response URL.

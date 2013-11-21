@@ -43,9 +43,9 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function getContent($url, array $headers = array())
+    public function getContent($url, array $headers = array(), $persistentCallback = null)
     {
-        $this->configure();
+        $this->configure($persistentCallback);
 
         try {
             return $this->createResponse($url, $this->browser->get($url, $headers)->getContent());
@@ -57,13 +57,22 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
-    {
-        $this->configure();
+    public function postContent(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array(),
+        $persistentCallback = null
+    ) {
+        $this->configure($persistentCallback);
         $post = $content;
 
         if (!empty($files)) {
-            $post = array_merge($post, array_map(function($file) { return '@'.$file; }, $files));
+            if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+                $post = array_merge($post, array_map(function($file) { return new \CURLFile($file); }, $files));
+            } else {
+                $post = array_merge($post, array_map(function($file) { return '@'.$file; }, $files));
+            }
         }
 
         try {
@@ -83,9 +92,19 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
 
     /**
      * Configures the buzz browser.
+     *
+     * @param callable $persistentCallback The persistent callback.
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If client is not supported for persistent callback.
      */
-    private function configure()
+    private function configure($persistentCallback)
     {
-        $this->browser->getClient()->setMaxRedirects($this->getMaxRedirects());
+        $client = $this->browser->getClient();
+
+        if ($persistentCallback !== null) {
+            $client->setOption(CURLOPT_WRITEFUNCTION, $this->createCurlPersistentCallback($persistentCallback));
+        }
+
+        $client->setMaxRedirects($this->getMaxRedirects());
     }
 }

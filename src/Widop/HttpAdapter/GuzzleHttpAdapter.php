@@ -45,10 +45,10 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function getContent($url, array $headers = array())
+    public function getContent($url, array $headers = array(), $persistentCallback = null)
     {
         $request = $this->client->get($url, $headers);
-        $this->configure($request);
+        $this->configure($request, $persistentCallback);
 
         try {
             $response = $request->send();
@@ -62,10 +62,15 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
-    public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
-    {
+    public function postContent(
+        $url,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array(),
+        $persistentCallback = null
+    ) {
         $request = $this->client->post($url, $headers, $content);
-        $this->configure($request);
+        $this->configure($request, $persistentCallback);
 
         foreach ($files as $key => $file) {
             $request->addPostFile($key, $file);
@@ -91,10 +96,17 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     /**
      * Configures the guzzle request.
      *
-     * @param \Guzzle\Http\Message\RequestInterface $request The request.
+     * @param \Guzzle\Http\Message\RequestInterface $request            The request.
+     * @param callable                              $persistentCallback The persistent callback.
      */
-    private function configure(RequestInterface $request)
+    private function configure(RequestInterface $request, $persistentCallback = null)
     {
         $request->getParams()->set('redirect.max', $this->getMaxRedirects());
+
+        if ($persistentCallback !== null) {
+            $request
+                ->getCurlOptions()
+                ->set(CURLOPT_WRITEFUNCTION, $this->createCurlPersistentCallback($persistentCallback));
+        }
     }
 }

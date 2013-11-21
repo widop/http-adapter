@@ -88,6 +88,18 @@ If you want to pass custom headers, you can use the second argument:
 $response = $httpAdapter->getContent($url, $headers);
 ```
 
+You may want to use persistent callbacks (if you want to download large file, listen to an API endpoint ...).
+Simply use the third argument:
+
+``` php
+$content = $httpAdapter->getContent($url, $headers, array($this, 'writeLargeFile');
+```
+
+*There are a few things you need to know about persistent callbacks:*
+ - This method is supported by all adapters except the Zend one.
+ - It will only works on Buzz if you use the Curl client (or an implementation of the Curl client supporting
+   `->setOption` calls).
+
 ## Make a POST request
 
 Each adapter allows you to make a POST request:
