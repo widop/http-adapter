@@ -49,11 +49,7 @@ class ZendHttpAdapter extends AbstractHttpAdapter
         $this->configure();
 
         try {
-            return $this->client
-                ->setUri($url)
-                ->setHeaders($headers)
-                ->send()
-                ->getBody();
+            return $this->createResponse($url, $this->client->setUri($url)->setHeaders($headers)->send()->getBody());
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -77,7 +73,7 @@ class ZendHttpAdapter extends AbstractHttpAdapter
         }
 
         try {
-            return $request->send()->getBody();
+            return $this->createResponse($url, $request->send()->getBody());
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }

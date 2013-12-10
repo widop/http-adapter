@@ -100,4 +100,26 @@ abstract class AbstractHttpAdapter implements HttpAdapterInterface
     {
         return is_array($content) ? http_build_query($content) : $content;
     }
+
+    /**
+     * Creates an Http response.
+     *
+     * @param string      $url          The response URL.
+     * @param string      $body         The response body.
+     * @param string|null $effectiveUrl The response effective URL.
+     *
+     * @return \Widop\HttpAdapter\Response The response.
+     */
+    protected function createResponse($url, $body, $effectiveUrl = null)
+    {
+        $response = new Response();
+        $response->setUrl($url);
+        $response->setBody($body);
+
+        if ($effectiveUrl !== null) {
+            $response->setEffectiveUrl($effectiveUrl);
+        }
+
+        return $response;
+    }
 }
