@@ -79,13 +79,13 @@ $zendHttpAdapter = new ZendHttpAdapter($client);
 Each adapter allows you to make a GET request:
 
 ``` php
-$content = $httpAdapter->getContent($url);
+$response = $httpAdapter->getContent($url);
 ```
 
 If you want to pass custom headers, you can use the second argument:
 
 ``` php
-$content = $httpAdapter->getContent($url, $headers);
+$response = $httpAdapter->getContent($url, $headers);
 ```
 
 ## Make a POST request
@@ -93,23 +93,36 @@ $content = $httpAdapter->getContent($url, $headers);
 Each adapter allows you to make a POST request:
 
 ``` php
-$content = $httpAdapter->postContent($url);
+$response = $httpAdapter->postContent($url);
 ```
 
 If you want to pass custom headers, you can use the second argument:
 
 ``` php
-$content = $httpAdapter->postContent($url, $headers);
+$response = $httpAdapter->postContent($url, $headers);
 ```
 
 If you want to pass POST datas, you can use the third argument:
 
 ``` php
-$content = $httpAdapter->postContent($url, $headers, $data);
+$response = $httpAdapter->postContent($url, $headers, $data);
 ```
 
 If you want to pass POST files, you can use the fourth argument:
 
 ``` php
-$content = $httpAdapter->postContent($url, $headers, $data, $files);
+$response = $httpAdapter->postContent($url, $headers, $data, $files);
 ```
+
+## Inspect the response
+
+All http adapter methods return a `Widop\HttpAdapter\Response` object which wraps the base URL, the body and the
+effective URL.
+
+``` php
+$url = $response->getUrl();
+$body = $response->getBody();
+$effectiveUrl = $response->getEffectiveUrl();
+```
+
+Be aware that the effective URL is supported by most of the adapters except Buzz and Zend ones...

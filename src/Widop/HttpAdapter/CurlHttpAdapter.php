@@ -50,14 +50,14 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
-     * Fetches the content from an URL.
+     * Fetches a response from an URL.
      *
      * @param string   $url      A valid URL.
      * @param array    $headers  Http headers.
      * @param array    $content  Http content (in case of POST method).
      * @param callable $callback A callable function.
      *
-     * @return string The response content.
+     * @return \Widop\HttpAdapter\Response The response.
      */
     protected function execute($url, array $headers = array(), array $content = array(), $callback = null)
     {
@@ -80,6 +80,7 @@ class CurlHttpAdapter extends AbstractHttpAdapter
         }
 
         $content = curl_exec($curl);
+        $lastRequestUrl = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
 
         if ($content === false) {
             $error = curl_error($curl);
@@ -91,7 +92,7 @@ class CurlHttpAdapter extends AbstractHttpAdapter
 
         curl_close($curl);
 
-        return $content;
+        return $this->createResponse($url, $content, $lastRequestUrl);
     }
 
     /**

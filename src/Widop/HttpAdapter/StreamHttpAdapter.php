@@ -45,7 +45,7 @@ class StreamHttpAdapter extends AbstractHttpAdapter
      *
      * @throws \Widop\HttpAdapterBundle\Exception\HttpAdapterException If an error occured.
      *
-     * @return string The response content.
+     * @return @return \Widop\HttpAdapter\Response The response.
      */
     protected function execute($url, $context)
     {
@@ -53,11 +53,19 @@ class StreamHttpAdapter extends AbstractHttpAdapter
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), print_r(error_get_last(), true));
         }
 
+        $metadata = stream_get_meta_data($fp);
+
+        if (preg_match_all('#Location:([^,]+)#', implode(',', $metadata['wrapper_data']), $matches)) {
+            $effectiveUrl = trim($matches[1][count($matches[1]) - 1]);
+        } else {
+            $effectiveUrl = $url;
+        }
+
         $content = stream_get_contents($fp);
 
         fclose($fp);
 
-        return $content;
+        return $this->createResponse($url, $content, $effectiveUrl);
     }
 
     /**

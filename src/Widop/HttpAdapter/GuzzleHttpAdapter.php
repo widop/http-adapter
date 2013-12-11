@@ -47,11 +47,13 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
      */
     public function getContent($url, array $headers = array())
     {
-        try {
-            $request = $this->client->get($url, $headers);
-            $this->configure($request);
+        $request = $this->client->get($url, $headers);
+        $this->configure($request);
 
-            return $request->send()->getBody(true);
+        try {
+            $response = $request->send();
+
+            return $this->createResponse($url, $response->getBody(true), $response->getEffectiveUrl());
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -70,7 +72,9 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
         }
 
         try {
-            return $request->send()->getBody(true);
+            $response = $request->send();
+
+            return $this->createResponse($url, $response->getBody(true), $response->getEffectiveUrl());
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
