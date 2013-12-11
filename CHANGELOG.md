@@ -2,6 +2,7 @@
 
 ### 1.1.0 (????-??-??)
 
+ * 4bc6ee5 - Return a response object instead of the body string
  * 04cfb94 - Add POST files support
 
 ### 1.0.2 (2013-10-30)
