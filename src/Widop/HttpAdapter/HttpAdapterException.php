@@ -19,18 +19,21 @@ namespace Widop\HttpAdapter;
 class HttpAdapterException extends \Exception
 {
     /**
-     * Gets the "Cannot fetch URL ..." exception.
+     * Gets the "CANNOT FETCH URL" exception.
      *
-     * @param string $url     An URL.
+     * @param string $url     The URL.
      * @param string $adapter The adapter name.
-     * @param string $info    Additional information about the error.
+     * @param string $info    Additional informations about the error.
      *
      * @return \Widop\HttpAdapterBundle\Exception\HttpAdapterException An exception.
      */
     public static function cannotFetchUrl($url, $adapter, $info)
     {
-        return new self(
-            sprintf('Cannot fetch URL "%s" with adapter "%s" ("%s").', $url, $adapter, $info)
-        );
+        return new self(sprintf(
+            'An error occured when fetching the URL "%s" with the adapter "%s" ("%s").',
+            $url,
+            $adapter,
+            $info
+        ));
     }
 }

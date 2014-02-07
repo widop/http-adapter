@@ -25,6 +25,8 @@ class CurlHttpAdapterTest extends AbstractHttpAdapterTest
      */
     protected function setUp()
     {
+        parent::setUp();
+
         $this->httpAdapter = new CurlHttpAdapter();
     }
 

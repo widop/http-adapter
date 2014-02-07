@@ -38,6 +38,14 @@ class StreamHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'stream';
+    }
+
+    /**
      * Calls an URL given a context.
      *
      * @param string   $url     An url.
@@ -45,15 +53,15 @@ class StreamHttpAdapter extends AbstractHttpAdapter
      *
      * @throws \Widop\HttpAdapterBundle\Exception\HttpAdapterException If an error occured.
      *
-     * @return @return \Widop\HttpAdapter\Response The response.
+     * @return @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    protected function execute($url, $context)
+    private function execute($url, $context)
     {
-        if (($fp = @fopen($this->fixUrl($url), 'rb', false, $context)) === false) {
+        if (($stream = @fopen($this->fixUrl($url), 'rb', false, $context)) === false) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), print_r(error_get_last(), true));
         }
 
-        $metadata = stream_get_meta_data($fp);
+        $metadata = stream_get_meta_data($stream);
 
         if (preg_match_all('#Location:([^,]+)#', implode(',', $metadata['wrapper_data']), $matches)) {
             $effectiveUrl = trim($matches[1][count($matches[1]) - 1]);
@@ -61,19 +69,10 @@ class StreamHttpAdapter extends AbstractHttpAdapter
             $effectiveUrl = $url;
         }
 
-        $content = stream_get_contents($fp);
+        $content = stream_get_contents($stream);
+        fclose($stream);
 
-        fclose($fp);
-
-        return $this->createResponse($url, $content, $effectiveUrl);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'stream';
+        return $this->createResponse($url, $metadata['wrapper_data'], $content, $effectiveUrl);
     }
 
     /**
@@ -88,7 +87,7 @@ class StreamHttpAdapter extends AbstractHttpAdapter
      *
      * @return resource A stream context resource.
      */
-    protected function createStreamContext($method, array $headers, array $content = array(), array $files = array())
+    private function createStreamContext($method, array $headers, array $content = array(), array $files = array())
     {
         if (!empty($files)) {
             throw new HttpAdapterException(sprintf('The "%s" does not support files.', __CLASS__));
