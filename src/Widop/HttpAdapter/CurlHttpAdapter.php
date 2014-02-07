@@ -33,11 +33,18 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     {
         $fixedContent = $this->fixContent($content);
 
-        return $this->execute($url, $headers, $content, function ($curl) use ($content, $files, $fixedContent) {
+        return $this->execute($url, $headers, function ($curl) use ($content, $files, $fixedContent) {
             if (!empty($files)) {
                 if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+                    curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
                     $post = array_merge($content, array_map(function($file) { return new \CURLFile($file); }, $files));
                 } else {
+                    foreach ($content as &$value) {
+                        if (is_string($value) && strpos($value, '@') === 0) {
+                            $value = sprintf("\0%s", $value);
+                        }
+                    }
+
                     $post = array_merge($content, array_map(function($file) { return '@'.$file; }, $files));
                 }
             } else {
@@ -50,20 +57,28 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'curl';
+    }
+
+    /**
      * Fetches a response from an URL.
      *
-     * @param string   $url      A valid URL.
-     * @param array    $headers  Http headers.
-     * @param array    $content  Http content (in case of POST method).
-     * @param callable $callback A callable function.
+     * @param string   $url      The url to fetch.
+     * @param array    $headers  The http headers.
+     * @param callable $callable A callable function executed before fetching the url.
      *
-     * @return \Widop\HttpAdapter\Response The response.
+     * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    protected function execute($url, array $headers = array(), array $content = array(), $callback = null)
+    private function execute($url, array $headers = array(), $callable = null)
     {
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_URL, $this->fixUrl($url));
+        curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         if ($this->getMaxRedirects() > 0) {
@@ -75,31 +90,25 @@ class CurlHttpAdapter extends AbstractHttpAdapter
             curl_setopt($curl, CURLOPT_HTTPHEADER, $this->fixHeaders($headers));
         }
 
-        if ($callback !== null) {
-            call_user_func($callback, $curl);
+        if ($callable !== null) {
+            call_user_func($callable, $curl);
         }
 
-        $content = curl_exec($curl);
-        $lastRequestUrl = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
-
-        if ($content === false) {
+        if (($response = curl_exec($curl)) === false) {
             $error = curl_error($curl);
-
             curl_close($curl);
 
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $error);
         }
 
+        $headersSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+        $effectiveUrl = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
+
         curl_close($curl);
 
-        return $this->createResponse($url, $content, $lastRequestUrl);
-    }
+        $headers = substr($response, 0, $headersSize);
+        $body = substr($response, $headersSize);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'curl';
+        return $this->createResponse($url, $headers, $body, $effectiveUrl);
     }
 }

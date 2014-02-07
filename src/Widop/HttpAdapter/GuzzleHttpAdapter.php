@@ -13,7 +13,7 @@ namespace Widop\HttpAdapter;
 
 use Guzzle\Http\Client;
 use Guzzle\Http\ClientInterface;
-use Guzzle\Http\Message\RequestInterface ;
+use Guzzle\Http\Message\RequestInterface;
 
 /**
  * Guzzle Http adapter.
@@ -47,16 +47,7 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
      */
     public function getContent($url, array $headers = array())
     {
-        $request = $this->client->get($url, $headers);
-        $this->configure($request);
-
-        try {
-            $response = $request->send();
-
-            return $this->createResponse($url, $response->getBody(true), $response->getEffectiveUrl());
-        } catch (\Exception $e) {
-            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
-        }
+        return $this->sendRequest($this->client->get($url, $headers));
     }
 
     /**
@@ -65,19 +56,12 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
         $request = $this->client->post($url, $headers, $content);
-        $this->configure($request);
 
         foreach ($files as $key => $file) {
             $request->addPostFile($key, $file);
         }
 
-        try {
-            $response = $request->send();
-
-            return $this->createResponse($url, $response->getBody(true), $response->getEffectiveUrl());
-        } catch (\Exception $e) {
-            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
-        }
+        return $this->sendRequest($request);
     }
 
     /**
@@ -89,12 +73,29 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
-     * Configures the guzzle request.
+     * Sends a request.
      *
      * @param \Guzzle\Http\Message\RequestInterface $request The request.
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
+     *
+     * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    private function configure(RequestInterface $request)
+    private function sendRequest(RequestInterface $request)
     {
         $request->getParams()->set('redirect.max', $this->getMaxRedirects());
+
+        try {
+            $response = $request->send();
+        } catch (\Exception $e) {
+            throw HttpAdapterException::cannotFetchUrl($request->getUrl(), $this->getName(), $e->getMessage());
+        }
+
+        return $this->createResponse(
+            $request->getUrl(),
+            $response->getHeaders()->toArray(),
+            $response->getBody(true),
+            $response->getEffectiveUrl()
+        );
     }
 }

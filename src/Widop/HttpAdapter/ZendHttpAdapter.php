@@ -13,6 +13,7 @@ namespace Widop\HttpAdapter;
 
 use Widop\HttpAdapter\HttpAdapterException;
 use Zend\Http\Client;
+use Zend\Http\Request;
 
 /**
  * Zend http adapter.
@@ -46,13 +47,7 @@ class ZendHttpAdapter extends AbstractHttpAdapter
      */
     public function getContent($url, array $headers = array())
     {
-        $this->configure();
-
-        try {
-            return $this->createResponse($url, $this->client->setUri($url)->setHeaders($headers)->send()->getBody());
-        } catch (\Exception $e) {
-            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
-        }
+        return $this->sendRequest($url, Request::METHOD_GET, $headers);
     }
 
     /**
@@ -60,23 +55,7 @@ class ZendHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        $this->configure();
-
-        $request = $this->client
-            ->setMethod('POST')
-            ->setUri($url)
-            ->setHeaders($headers)
-            ->setParameterPost($content);
-
-        foreach ($files as $key => $file) {
-            $request->setFileUpload($file, $key);
-        }
-
-        try {
-            return $this->createResponse($url, $request->send()->getBody());
-        } catch (\Exception $e) {
-            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
-        }
+        return $this->sendRequest($url, Request::METHOD_POST, $headers, $content, $files);
     }
 
     /**
@@ -88,10 +67,43 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
-     * Configures the Zend Http Client.
+     * Sends a request.
+     *
+     * @param string $url     The url.
+     * @param string $method  The http method.
+     * @param array  $headers The headers.
+     * @param array  $content The content.
+     * @param array  $files   The files.
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
+     *
+     * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    private function configure()
-    {
-        $this->client->setOptions(array('maxredirects' => $this->getMaxRedirects()));
+    private function sendRequest(
+        $url,
+        $method,
+        array $headers = array(),
+        array $content = array(),
+        array $files = array()
+    ) {
+        $this->client
+            ->resetParameters()
+            ->setOptions(array('maxredirects' => $this->getMaxRedirects()))
+            ->setMethod($method)
+            ->setUri($url)
+            ->setHeaders($headers)
+            ->setParameterPost($content);
+
+        foreach ($files as $key => $file) {
+            $this->client->setFileUpload($file, $key);
+        }
+
+        try {
+            $response = $this->client->send();
+        } catch (\Exception $e) {
+            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
+        }
+
+        return $this->createResponse($url, $response->getHeaders()->toArray(), $response->getBody());
     }
 }

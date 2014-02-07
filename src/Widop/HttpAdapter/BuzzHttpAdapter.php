@@ -12,6 +12,7 @@
 namespace Widop\HttpAdapter;
 
 use Buzz\Browser;
+use Buzz\Message\RequestInterface;
 
 /**
  * Buzz Http adapter.
@@ -45,13 +46,7 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      */
     public function getContent($url, array $headers = array())
     {
-        $this->configure();
-
-        try {
-            return $this->createResponse($url, $this->browser->get($url, $headers)->getContent());
-        } catch (\Exception $e) {
-            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
-        }
+        return $this->sendRequest($url, RequestInterface::METHOD_GET, $headers);
     }
 
     /**
@@ -59,18 +54,11 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        $this->configure();
-        $post = $content;
-
         if (!empty($files)) {
-            $post = array_merge($post, array_map(function($file) { return '@'.$file; }, $files));
+            $content = array_merge($content, array_map(function($file) { return '@'.$file; }, $files));
         }
 
-        try {
-            return $this->createResponse($url, $this->browser->post($url, $headers, $post)->getContent());
-        } catch (\Exception $e) {
-            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
-        }
+        return $this->sendRequest($url, RequestInterface::METHOD_POST, $headers, $content);
     }
 
     /**
@@ -82,10 +70,27 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
-     * Configures the buzz browser.
+     * Sends a request.
+     *
+     * @param string $url     The url.
+     * @param string $method  The http method.
+     * @param array  $headers The header.
+     * @param array  $content The content.
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
+     *
+     * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    private function configure()
+    private function sendRequest($url, $method, array $headers = array(), array $content = array())
     {
         $this->browser->getClient()->setMaxRedirects($this->getMaxRedirects());
+
+        try {
+            $response = $this->browser->call($url, $method, $headers, $content);
+        } catch (\Exception $e) {
+            throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
+        }
+
+        return $this->createResponse($url, $response->getHeaders(), $response->getContent());
     }
 }

@@ -104,22 +104,61 @@ abstract class AbstractHttpAdapter implements HttpAdapterInterface
     /**
      * Creates an Http response.
      *
-     * @param string      $url          The response URL.
-     * @param string      $body         The response body.
-     * @param string|null $effectiveUrl The response effective URL.
+     * @param string       $url          The response URL.
+     * @param string|array $headers      The response headers.
+     * @param string       $body         The response body.
+     * @param string|null  $effectiveUrl The response effective URL.
      *
-     * @return \Widop\HttpAdapter\Response The response.
+     * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    protected function createResponse($url, $body, $effectiveUrl = null)
+    protected function createResponse($url, $headers, $body, $effectiveUrl = null)
     {
-        $response = new Response();
-        $response->setUrl($url);
-        $response->setBody($body);
+        return new HttpResponse($url, $this->createHeaders($headers), $body, $effectiveUrl);
+    }
 
-        if ($effectiveUrl !== null) {
-            $response->setEffectiveUrl($effectiveUrl);
+    /**
+     * Creates the headers.
+     *
+     * @param string|array $headers The headers.
+     *
+     * @return array The created headers.
+     */
+    private function createHeaders($headers)
+    {
+        if (is_string($headers)) {
+            return $this->createHeaders(explode("\r\n", $headers));
         }
 
-        return $response;
+        $fixedHeaders = array();
+
+        foreach ($headers as $key => $header) {
+            if (is_int($key)) {
+                if (($pos = strpos($header, ':')) === false) {
+                    continue;
+                }
+
+                $fixedHeaders[substr($header, 0, $pos)] = substr($header, $pos + 1);
+            } else {
+                $fixedHeaders[$key] = $this->createHeader($header);
+            }
+        }
+
+        return $fixedHeaders;
+    }
+
+    /**
+     * Creates an header.
+     *
+     * @param string|array $header The header.
+     *
+     * @return string The created header.
+     */
+    private function createHeader($header)
+    {
+        if (is_array($header)) {
+            return implode(';', $header);
+        }
+
+        return $header;
     }
 }

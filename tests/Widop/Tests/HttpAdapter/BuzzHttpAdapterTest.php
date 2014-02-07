@@ -25,6 +25,8 @@ class BuzzHttpAdapterTest extends AbstractHttpAdapterTest
      */
     protected function setUp()
     {
+        parent::setUp();
+
         $this->httpAdapter = new BuzzHttpAdapter();
     }
 

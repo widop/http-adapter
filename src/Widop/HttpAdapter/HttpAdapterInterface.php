@@ -14,11 +14,6 @@ namespace Widop\HttpAdapter;
 /**
  * Http adapter interface.
  *
- * Headers may be passed using:
- * - an indexed array (0 => 'Content-Type: html/text')
- * - an associative array ('Content-Type' => 'html/text')
- * - a mix of the two
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 interface HttpAdapterInterface
@@ -26,33 +21,33 @@ interface HttpAdapterInterface
     /**
      * Gets the content fetched from the given URL.
      *
-     * @param string $url     The URL to request.
-     * @param array  $headers HTTP headers (optionnal).
+     * @param string $url     The url to request.
+     * @param array  $headers The http headers (optional).
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
-     * @return \Widop\HttpAdapter\Response The fetched response.
+     * @return \Widop\HttpAdapter\HttpResponse The http response.
      */
     function getContent($url, array $headers = array());
 
     /**
      * Gets the content fetched from the given url & POST datas.
      *
-     * @param string $url     The URL to request.
-     * @param array  $headers HTTP headers (optional).
-     * @param array  $content The POST content (optional).
-     * @param array  $files   The POST files (optional).
+     * @param string $url     The url to request.
+     * @param array  $headers The http headers (optional).
+     * @param array  $content The post content (optional).
+     * @param array  $files   The post files (optional).
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
-     * @return string The fetched content.
+     * @return \Widop\HttpAdapter\HttpResponse The http response.
      */
     function postContent($url, array $headers = array(), array $content = array(), array $files = array());
 
     /**
-     * Gets the name of the Http adapter.
+     * Gets the name of the http adapter.
      *
-     * @return string The Http adapter name.
+     * @return string The http adapter name.
      */
     function getName();
 }

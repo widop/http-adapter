@@ -21,27 +21,64 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
     /** @var \Widop\HttpAdapter\HttpAdapterInterface */
     protected $httpAdapter;
 
+    /** @var string */
+    protected $url;
+
+    /** @var array */
+    protected $headers;
+
+    /** @var array */
+    protected $content;
+
+    /** @var array */
+    protected $files;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        $this->url = 'http://www.widop.com';
+        $this->headers = array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8');
+        $this->content = array('param' => 'value');
+        $this->files = array('file' => realpath(__DIR__.'/Fixtures/file.txt'));
+    }
+
     /**
      * {@inheritdoc}
      */
     protected function tearDown()
     {
+        unset($this->files);
+        unset($this->content);
+        unset($this->headers);
+        unset($this->url);
         unset($this->httpAdapter);
+    }
+
+    /**
+     * Asserts an http response.
+     *
+     * @param mixed $response The http response.
+     */
+    protected function assertResponse($response)
+    {
+        $this->assertInstanceOf('Widop\HttpAdapter\HttpResponse', $response);
+        $this->assertSame($this->url, $response->getUrl());
+        $this->assertNotEmpty($response->getHeaders());
+        $this->assertNotEmpty($response->getBody());
     }
 
     abstract public function testName();
 
     public function testGetContentWithoutHeaders()
     {
-        $this->assertNotEmpty($this->httpAdapter->getContent('http://www.google.fr'));
+        $this->assertResponse($this->httpAdapter->getContent($this->url));
     }
 
     public function testGetContentWithHeaders()
     {
-        $this->assertNotEmpty($this->httpAdapter->getContent(
-            'http://www.google.fr',
-            array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8'))
-        );
+        $this->assertResponse($this->httpAdapter->getContent($this->url,$this->headers));
     }
 
     /**
@@ -54,38 +91,27 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testPostContentWithoutHeaders()
     {
-        $this->assertNotEmpty($this->httpAdapter->postContent('http://www.widop.com'));
+        $this->assertResponse($this->httpAdapter->postContent($this->url));
     }
 
     public function testPostContentWithHeaders()
     {
-        $this->assertNotEmpty($this->httpAdapter->postContent(
-            'http://www.widop.com',
-            array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8'))
-        );
+        $this->assertResponse($this->httpAdapter->postContent($this->url, $this->headers));
     }
 
     public function testPostContentWithHeadersAndContent()
     {
-        $this->assertNotEmpty(
-            $this->httpAdapter->postContent(
-                'http://www.widop.com',
-                array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8'),
-                array('param' => 'value')
-            )
-        );
+        $this->assertResponse($this->httpAdapter->postContent($this->url, $this->headers, $this->content));
     }
 
     public function testPostContentWithHeadersAndContentAndFiles()
     {
-        $this->assertNotEmpty(
-            $this->httpAdapter->postContent(
-                'http://www.widop.com',
-                array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8'),
-                array('param' => 'value'),
-                array('file' => realpath(__DIR__.'/Fixtures/file.txt'))
-            )
-        );
+        $this->assertResponse($this->httpAdapter->postContent(
+            $this->url,
+            $this->headers,
+            $this->content,
+            $this->files
+        ));
     }
 
     /**

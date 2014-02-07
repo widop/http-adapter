@@ -25,6 +25,8 @@ class StreamHttpAdapterTest extends AbstractHttpAdapterTest
      */
     protected function setUp()
     {
+        parent::setUp();
+
         $this->httpAdapter = new StreamHttpAdapter();
     }
 
