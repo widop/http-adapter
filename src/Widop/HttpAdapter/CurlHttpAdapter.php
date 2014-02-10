@@ -101,6 +101,7 @@ class CurlHttpAdapter extends AbstractHttpAdapter
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $error);
         }
 
+        $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $headersSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
         $effectiveUrl = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
 
@@ -109,6 +110,6 @@ class CurlHttpAdapter extends AbstractHttpAdapter
         $headers = substr($response, 0, $headersSize);
         $body = substr($response, $headersSize);
 
-        return $this->createResponse($url, $headers, $body, $effectiveUrl);
+        return $this->createResponse($statusCode, $url, $headers, $body, $effectiveUrl);
     }
 }

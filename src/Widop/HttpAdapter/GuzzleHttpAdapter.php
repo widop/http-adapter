@@ -92,6 +92,7 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
         }
 
         return $this->createResponse(
+            $response->getStatusCode(),
             $request->getUrl(),
             $response->getHeaders()->toArray(),
             $response->getBody(true),

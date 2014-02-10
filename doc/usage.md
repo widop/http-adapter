@@ -116,11 +116,12 @@ $response = $httpAdapter->postContent($url, $headers, $data, $files);
 
 ## Inspect the response
 
-All http adapter return a `Widop\HttpAdapter\HttpResponse` which wraps the base URL, the headers, the body and the
-effective URL.
+All http adapter return a `Widop\HttpAdapter\HttpResponse` which wraps the base URL, the status code, the headers, the
+body and the effective URL.
 
 ``` php
 $url = $response->getUrl();
+$statusCode = $response->getStatusCode();
 $headers = $response->getHeaders();
 $header = $reponse->getHeader('Date');
 $body = $response->getBody();

@@ -23,6 +23,9 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
     /** @var \Widop\HttpAdapter\HttpResponse */
     protected $httpResponse;
 
+    /** @var integer */
+    protected $statusCode;
+
     /** @var string */
     protected $url;
 
@@ -40,12 +43,13 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $this->statusCode = 200;
         $this->url = 'url';
         $this->headers = array('foo' => 'bar');
         $this->body = 'body';
         $this->effectiveUrl = 'effective_url';
 
-        $this->httpResponse = new HttpResponse($this->url, $this->headers, $this->body, $this->effectiveUrl);
+        $this->httpResponse = new HttpResponse($this->statusCode, $this->url, $this->headers, $this->body, $this->effectiveUrl);
     }
 
     /**
@@ -53,11 +57,17 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
+        unset($this->statusCode);
         unset($this->effectiveUrl);
         unset($this->body);
         unset($this->headers);
         unset($this->url);
         unset($this->httpResponse);
+    }
+
+    public function testStatusCode()
+    {
+        $this->assertSame($this->statusCode, $this->httpResponse->getStatusCode());
     }
 
     public function testUrl()
