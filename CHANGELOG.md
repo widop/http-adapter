@@ -2,6 +2,7 @@
 
 ### 1.1.0 (????-??-??)
 
+ * 5285f30 - [Response] Add http status code support
  * 708bb4d - [Response] Add headers support
  * 4bc6ee5 - Return a response object instead of the body string
  * 04cfb94 - Add POST files support
