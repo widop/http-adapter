@@ -72,7 +72,13 @@ class StreamHttpAdapter extends AbstractHttpAdapter
         $content = stream_get_contents($stream);
         fclose($stream);
 
-        return $this->createResponse($url, $metadata['wrapper_data'], $content, $effectiveUrl);
+        return $this->createResponse(
+            isset($metadata['wrapper_data'][0]) ? $this->parseStatusCode($metadata['wrapper_data'][0]) : null,
+            $url,
+            $metadata['wrapper_data'],
+            $content,
+            $effectiveUrl
+        );
     }
 
     /**
@@ -113,5 +119,21 @@ class StreamHttpAdapter extends AbstractHttpAdapter
         }
 
         return stream_context_create($contextOptions);
+    }
+
+    /**
+     * Parses the status code from the status line.
+     *
+     * @param string $status The status line.
+     *
+     * @return null|integer The status code.
+     */
+    private function parseStatusCode($status)
+    {
+        $parts = explode(' ', $status, 2);
+
+        if (isset($parts[1])) {
+            return (integer) $parts[1];
+        }
     }
 }

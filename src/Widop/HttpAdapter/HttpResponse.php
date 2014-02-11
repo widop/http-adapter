@@ -19,6 +19,9 @@ namespace Widop\HttpAdapter;
  */
 class HttpResponse
 {
+    /** @var null|integer */
+    private $statusCode;
+
     /** @var string */
     private $url;
 
@@ -28,19 +31,21 @@ class HttpResponse
     /** @var string */
     private $body;
 
-    /** @var string */
+    /** @var null|string */
     private $effectiveUrl;
 
     /**
      * Creates an http response.
      *
-     * @param string      $url          The response url.
-     * @param array       $headers      The response headers.
-     * @param string      $body         The response body.
-     * @param null|string $effectiveUrl The response effective url.
+     * @param null|integer $statusCode   The response status code.
+     * @param string       $url          The response url.
+     * @param array        $headers      The response headers.
+     * @param string       $body         The response body.
+     * @param null|string  $effectiveUrl The response effective url.
      */
-    public function __construct($url, array $headers, $body, $effectiveUrl = null)
+    public function __construct($statusCode, $url, array $headers, $body, $effectiveUrl = null)
     {
+        $this->statusCode = $statusCode;
         $this->url = $url;
         $this->body = $body;
         $this->effectiveUrl = $effectiveUrl;
@@ -49,6 +54,16 @@ class HttpResponse
         foreach ($headers as $key => $value) {
             $this->headers[strtolower($key)] = $value;
         }
+    }
+
+    /**
+     * Gets the status code.
+     *
+     * @return null|integer The status code.
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
     }
 
     /**
@@ -98,7 +113,7 @@ class HttpResponse
     /**
      * Gets the effective url.
      *
-     * @return string The effective url.
+     * @return null|string The effective url.
      */
     public function getEffectiveUrl()
     {

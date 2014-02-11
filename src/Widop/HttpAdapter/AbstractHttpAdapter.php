@@ -104,6 +104,7 @@ abstract class AbstractHttpAdapter implements HttpAdapterInterface
     /**
      * Creates an Http response.
      *
+     * @param integer|null $statusCode   The response status code.
      * @param string       $url          The response URL.
      * @param string|array $headers      The response headers.
      * @param string       $body         The response body.
@@ -111,9 +112,9 @@ abstract class AbstractHttpAdapter implements HttpAdapterInterface
      *
      * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    protected function createResponse($url, $headers, $body, $effectiveUrl = null)
+    protected function createResponse($statusCode, $url, $headers, $body, $effectiveUrl = null)
     {
-        return new HttpResponse($url, $this->createHeaders($headers), $body, $effectiveUrl);
+        return new HttpResponse($statusCode, $url, $this->createHeaders($headers), $body, $effectiveUrl);
     }
 
     /**

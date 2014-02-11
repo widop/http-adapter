@@ -38,6 +38,7 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $this->statusCode = 200;
         $this->url = 'http://www.widop.com';
         $this->headers = array('Accept-Charset' => 'utf-8', 'Accept-Language: en-US,en;q=0.8');
         $this->content = array('param' => 'value');
@@ -64,6 +65,7 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
     protected function assertResponse($response)
     {
         $this->assertInstanceOf('Widop\HttpAdapter\HttpResponse', $response);
+        $this->assertSame($this->statusCode, $response->getStatusCode());
         $this->assertSame($this->url, $response->getUrl());
         $this->assertNotEmpty($response->getHeaders());
         $this->assertNotEmpty($response->getBody());
