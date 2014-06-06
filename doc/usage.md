@@ -114,6 +114,44 @@ If you want to pass POST files, you can use the fourth argument:
 $response = $httpAdapter->postContent($url, $headers, $data, $files);
 ```
 
+## Make a HEAD request
+
+Each adapter allows you to make a HEAD request:
+
+``` php
+$response = $httpAdapter->head($url);
+```
+
+If you want to pass custom headers, you can use the second argument:
+
+``` php
+$response = $httpAdapter->head($url, $headers);
+```
+
+## Make a PUT request
+
+Each adapter allows you to make a PUT request:
+
+``` php
+$response = $httpAdapter->put($url);
+```
+
+NB: You can also respectively pass headers, data and files to the 'put' method.
+NB2: When working with files it is recommended to use an adapater or a client that handle them (mainly cURL).
+You can also try and set the Content-Length header by hand but there are no guarantee that it will work.
+
+## Make a DELETE request
+
+Each adapter allows you to make a DELETE request:
+
+``` php
+$response = $httpAdapter->delete($url);
+```
+
+NB: You can also respectively pass headers, data and files to the 'delete' method.
+NB2: When working with files it is recommended to use an adapater or a client that handle them (mainly cURL).
+You can also try and set the Content-Length header by hand but there are no guarantee that it will work.
+
 ## Inspect the response
 
 All http adapter return a `Widop\HttpAdapter\HttpResponse` which wraps the base URL, the status code, the headers, the

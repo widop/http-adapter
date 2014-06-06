@@ -59,4 +59,20 @@ class StreamHttpAdapterTest extends AbstractHttpAdapterTest
     {
         parent::testPutContentWithHeadersAndContentAndFiles();
     }
+
+    public function testDeleteContentWithHeadersAndContent()
+    {
+        $this->headers['Content-Length'] = 0;
+
+        parent::testDeleteContentWithHeadersAndContent();
+    }
+
+    /**
+     * @expectedException \Widop\HttpAdapter\HttpAdapterException
+     * @expectedExceptionMessage The "Widop\HttpAdapter\StreamHttpAdapter" does not support files.
+     */
+    public function testDeleteContentWithHeadersAndContentAndFiles()
+    {
+        parent::testDeleteContentWithHeadersAndContentAndFiles();
+    }
 }

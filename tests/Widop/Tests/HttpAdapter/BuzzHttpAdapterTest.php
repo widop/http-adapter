@@ -11,6 +11,8 @@
 
 namespace Widop\Tests\HttpAdapter;
 
+use Buzz\Browser;
+use Buzz\Client\Curl;
 use Widop\HttpAdapter\BuzzHttpAdapter;
 
 /**
@@ -27,21 +29,7 @@ class BuzzHttpAdapterTest extends AbstractHttpAdapterTest
     {
         parent::setUp();
 
-        $this->httpAdapter = new BuzzHttpAdapter();
-    }
-
-    public function testPutContentWithHeadersAndContent()
-    {
-        $this->headers['Content-Length'] = 0;
-
-        parent::testPutContentWithHeadersAndContent();
-    }
-
-    public function testPutContentWithHeadersAndContentAndFiles()
-    {
-        $this->headers['Content-Length'] = 0;
-
-        parent::testPutContentWithHeadersAndContentAndFiles();
+        $this->httpAdapter = new BuzzHttpAdapter(new Browser(new Curl()));
     }
 
     public function testName()

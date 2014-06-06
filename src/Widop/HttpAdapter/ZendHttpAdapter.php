@@ -77,6 +77,14 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function delete($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->sendRequest($url, Request::METHOD_DELETE, $headers, $content, $files);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'zend';

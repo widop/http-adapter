@@ -152,4 +152,23 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
             $this->files
         ));
     }
+
+    public function testDeleteContentWithHeadersAndContent()
+    {
+        $this->assertResponse($this->httpAdapter->delete(
+            $this->url,
+            $this->headers,
+            $this->content
+        ));
+    }
+
+    public function testDeleteContentWithHeadersAndContentAndFiles()
+    {
+        $this->assertResponse($this->httpAdapter->delete(
+            $this->url,
+            $this->headers,
+            $this->content,
+            $this->files
+        ));
+    }
 }

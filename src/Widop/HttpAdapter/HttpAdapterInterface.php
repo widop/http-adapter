@@ -71,6 +71,20 @@ interface HttpAdapterInterface
     function put($url, array $headers = array(), array $content = array(), array $files = array());
 
     /**
+     * Performs a DELETE request.
+     *
+     * @param string $url     The url to request.
+     * @param array  $headers The http headers (optional).
+     * @param array  $content The post content (optional).
+     * @param array  $files   The post files (optional).
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
+     *
+     * @return \Widop\HttpAdapter\HttpResponse The http response.
+     */
+    function delete($url, array $headers = array(), array $content = array(), array $files = array());
+
+    /**
      * Gets the name of the http adapter.
      *
      * @return string The http adapter name.

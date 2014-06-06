@@ -31,7 +31,7 @@ class CurlHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        return $this->execute($url, $headers, $this->getPostRequestClosure(true, $content, $files));
+        return $this->execute($url, $headers, $this->getRequestClosure('POST', $content, $files));
     }
 
     /**
@@ -50,7 +50,15 @@ class CurlHttpAdapter extends AbstractHttpAdapter
      */
     public function put($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        return $this->execute($url, $headers, $this->getPostRequestClosure(false, $content, $files));
+        return $this->execute($url, $headers, $this->getRequestClosure('PUT', $content, $files));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delete($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->execute($url, $headers, $this->getRequestClosure('DELETE', $content, $files));
     }
 
     /**
@@ -62,19 +70,19 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     }
 
     /**
-     * Gets the POST/PUT request closure.
+     * Gets the POST/PUT... request closure.
      *
-     * @param boolean $isPostMethod TRUE in case of a POST method, else FALSE.
-     * @param array   $content      The POST/PUT content (optional).
-     * @param array   $files        The POST/PUT files (optional).
+     * @param boolean $method  The HTTP method.
+     * @param array   $content The POST/PUT... content (optional).
+     * @param array   $files   The POST/PUT... files (optional).
      *
      * @return \Closure The POST/PUT request closure.
      */
-    private function getPostRequestClosure($isPostMethod, array $content = array(), array $files = array())
+    private function getRequestClosure($method, array $content = array(), array $files = array())
     {
         $fixedContent = $this->fixContent($content);
 
-        return function ($curl) use ($content, $files, $fixedContent, $isPostMethod) {
+        return function ($curl) use ($content, $files, $fixedContent, $method) {
             if (!empty($files)) {
                 if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
                     curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
@@ -92,10 +100,10 @@ class CurlHttpAdapter extends AbstractHttpAdapter
                 $post = $fixedContent;
             }
 
-            if ($isPostMethod) {
+            if ($method === 'POST') {
                 curl_setopt($curl, CURLOPT_POST, true);
             } else {
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
             }
 
             curl_setopt($curl, CURLOPT_POSTFIELDS, $post);

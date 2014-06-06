@@ -12,7 +12,7 @@
 namespace Widop\HttpAdapter;
 
 use Buzz\Browser;
-use Buzz\Message\RequestInterface;
+use Buzz\Message\Form\FormUpload;
 
 /**
  * Buzz Http adapter.
@@ -46,7 +46,7 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      */
     public function getContent($url, array $headers = array())
     {
-        return $this->sendRequest($url, RequestInterface::METHOD_GET, $headers);
+        return $this->sendRequest($url, 'GET', $headers);
     }
 
     /**
@@ -54,11 +54,7 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        if (!empty($files)) {
-            $content = array_merge($content, array_map(function($file) { return '@'.$file; }, $files));
-        }
-
-        return $this->sendRequest($url, RequestInterface::METHOD_POST, $headers, $content);
+        return $this->sendRequest($url, 'POST', $headers, $content, $files);
     }
 
     /**
@@ -66,7 +62,7 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      */
     public function head($url, array $headers = array())
     {
-        return $this->sendRequest($url, RequestInterface::METHOD_HEAD, $headers);
+        return $this->sendRequest($url, 'HEAD', $headers);
     }
 
     /**
@@ -74,11 +70,15 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      */
     public function put($url, array $headers = array(), array $content = array(), array $files = array())
     {
-        if (!empty($files)) {
-            $content = array_merge($content, array_map(function($file) { return '@'.$file; }, $files));
-        }
+        return $this->sendRequest($url, 'PUT', $headers, $content, $files);
+    }
 
-        return $this->sendRequest($url, RequestInterface::METHOD_PUT, $headers, $content);
+    /**
+     * {@inheritdoc}
+     */
+    public function delete($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->sendRequest($url, 'DELETE', $headers, $content, $files);
     }
 
     /**
@@ -94,19 +94,38 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
      *
      * @param string $url     The url.
      * @param string $method  The http method.
-     * @param array  $headers The header.
-     * @param array  $content The content.
+     * @param array  $headers The header (optional).
+     * @param array  $content The content (optional).
+     * @param array  $files   The files (optional).
      *
      * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
      *
      * @return \Widop\HttpAdapter\HttpResponse The response.
      */
-    private function sendRequest($url, $method, array $headers = array(), array $content = array())
+    private function sendRequest($url, $method, array $headers = array(), array $content = array(), array $files = array())
     {
         $this->browser->getClient()->setMaxRedirects($this->getMaxRedirects());
 
         try {
-            $response = $this->browser->call($url, $method, $headers, $content);
+            if (!empty($files) && class_exists('Buzz\Message\Form\FormUpload')) {
+                $response = $this->browser->submit(
+                    $url,
+                    $this->mergeFilesAndContent($content, $files, function ($file) {
+                        return new FormUpload($file);
+                    }),
+                    $method,
+                    $headers
+                );
+            } else {
+                $response = $this->browser->call(
+                    $url,
+                    $method,
+                    $headers,
+                    $this->mergeFilesAndContent($content, $files, function ($file) {
+                        return '@'.$file;
+                    })
+                );
+            }
         } catch (\Exception $e) {
             throw HttpAdapterException::cannotFetchUrl($url, $this->getName(), $e->getMessage());
         }
@@ -117,5 +136,37 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
             $response->getHeaders(),
             $response->getContent()
         );
+    }
+
+    /**
+     * Merges the content and files data.
+     *
+     * @param array    $content               The content.
+     * @param array    $files                 The files.
+     * @param callable $transformFileCallback The callback responsible to modify a file.
+     *
+     * @return array The merged content.
+     */
+    private function mergeFilesAndContent(array $content, array $files, $transformFileCallback)
+    {
+        $fields = array();
+
+        foreach ($files as $key => $file) {
+            if (is_int($key)) {
+                $fields[] = $transformFileCallback($file);
+            } else {
+                $fields[$key] = $transformFileCallback($file);
+            }
+        }
+
+        foreach ($content as $key => $data) {
+            if (is_int($key)) {
+                $fields[] = $data;
+            } else {
+                $fields[$key] = $data;
+            }
+        }
+
+        return $fields;
     }
 }

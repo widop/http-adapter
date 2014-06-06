@@ -56,6 +56,14 @@ class StreamHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function delete($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->execute($url, $this->createStreamContext('DELETE', $headers, $content, $files));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'stream';
