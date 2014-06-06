@@ -75,6 +75,20 @@ class GuzzleHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function put($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        $request = $this->client->put($url, $headers, $content);
+
+        foreach ($files as $key => $file) {
+            $request->addPostFile($key, $file);
+        }
+
+        return $this->sendRequest($request);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'guzzle';

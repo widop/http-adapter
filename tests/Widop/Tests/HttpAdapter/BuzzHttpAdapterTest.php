@@ -30,6 +30,20 @@ class BuzzHttpAdapterTest extends AbstractHttpAdapterTest
         $this->httpAdapter = new BuzzHttpAdapter();
     }
 
+    public function testPutContentWithHeadersAndContent()
+    {
+        $this->headers['Content-Length'] = 0;
+
+        parent::testPutContentWithHeadersAndContent();
+    }
+
+    public function testPutContentWithHeadersAndContentAndFiles()
+    {
+        $this->headers['Content-Length'] = 0;
+
+        parent::testPutContentWithHeadersAndContentAndFiles();
+    }
+
     public function testName()
     {
         $this->assertSame('buzz', $this->httpAdapter->getName());

@@ -31,9 +31,50 @@ class CurlHttpAdapter extends AbstractHttpAdapter
      */
     public function postContent($url, array $headers = array(), array $content = array(), array $files = array())
     {
+        return $this->execute($url, $headers, $this->getPostRequestClosure(true, $content, $files));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function head($url, array $headers = array())
+    {
+        return $this->execute($url, $headers, function ($curl) {
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
+            curl_setopt($curl, CURLOPT_NOBODY, true);
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function put($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->execute($url, $headers, $this->getPostRequestClosure(false, $content, $files));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'curl';
+    }
+
+    /**
+     * Gets the POST/PUT request closure.
+     *
+     * @param boolean $isPostMethod TRUE in case of a POST method, else FALSE.
+     * @param array   $content      The POST/PUT content (optional).
+     * @param array   $files        The POST/PUT files (optional).
+     *
+     * @return \Closure The POST/PUT request closure.
+     */
+    private function getPostRequestClosure($isPostMethod, array $content = array(), array $files = array())
+    {
         $fixedContent = $this->fixContent($content);
 
-        return $this->execute($url, $headers, function ($curl) use ($content, $files, $fixedContent) {
+        return function ($curl) use ($content, $files, $fixedContent, $isPostMethod) {
             if (!empty($files)) {
                 if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
                     curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
@@ -51,28 +92,14 @@ class CurlHttpAdapter extends AbstractHttpAdapter
                 $post = $fixedContent;
             }
 
-            curl_setopt($curl, CURLOPT_POST, true);
+            if ($isPostMethod) {
+                curl_setopt($curl, CURLOPT_POST, true);
+            } else {
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+            }
+
             curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function head($url, array $headers = array())
-    {
-        return $this->execute($url, $headers, function ($curl) {
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
-            curl_setopt($curl, CURLOPT_NOBODY, true);
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'curl';
+        };
     }
 
     /**
