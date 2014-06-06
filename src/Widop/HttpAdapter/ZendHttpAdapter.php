@@ -69,6 +69,14 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function put($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->sendRequest($url, Request::METHOD_PUT, $headers, $content, $files);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'zend';
@@ -116,7 +124,7 @@ class ZendHttpAdapter extends AbstractHttpAdapter
             $response->getStatusCode(),
             $url,
             $response->getHeaders()->toArray(),
-            $response->getBody()
+            $method === Request::METHOD_HEAD ? '' : $response->getBody()
         );
     }
 }

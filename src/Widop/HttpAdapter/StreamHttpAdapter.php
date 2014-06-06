@@ -48,6 +48,14 @@ class StreamHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function put($url, array $headers = array(), array $content = array(), array $files = array())
+    {
+        return $this->execute($url, $this->createStreamContext('PUT', $headers, $content, $files));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'stream';
@@ -122,7 +130,7 @@ class StreamHttpAdapter extends AbstractHttpAdapter
             $contextOptions['http']['max_redirects'] = $this->getMaxRedirects();
         }
 
-        if ($method === 'POST') {
+        if ($method === 'POST' || $method === 'PUT') {
             $contextOptions['http']['content'] = $this->fixContent($content);
         }
 
