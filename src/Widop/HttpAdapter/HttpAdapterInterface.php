@@ -45,6 +45,18 @@ interface HttpAdapterInterface
     function postContent($url, array $headers = array(), array $content = array(), array $files = array());
 
     /**
+     * Performs a HEAD request.
+     *
+     * @param string $url     The url to request.
+     * @param array  $headers The http headers (optional).
+     *
+     * @throws \Widop\HttpAdapter\HttpAdapterException If an error occured.
+     *
+     * @return \Widop\HttpAdapter\HttpResponse The http response.
+     */
+    function head($url, array $headers = array());
+
+    /**
      * Gets the name of the http adapter.
      *
      * @return string The http adapter name.

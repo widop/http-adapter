@@ -61,6 +61,14 @@ class ZendHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function head($url, array $headers = array())
+    {
+        return $this->sendRequest($url, Request::METHOD_HEAD, $headers);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'zend';
