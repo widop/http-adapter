@@ -64,6 +64,14 @@ class BuzzHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function head($url, array $headers = array())
+    {
+        return $this->sendRequest($url, RequestInterface::METHOD_HEAD, $headers);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'buzz';

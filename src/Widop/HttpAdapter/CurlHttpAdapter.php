@@ -59,6 +59,17 @@ class CurlHttpAdapter extends AbstractHttpAdapter
     /**
      * {@inheritdoc}
      */
+    public function head($url, array $headers = array())
+    {
+        return $this->execute($url, $headers, function ($curl) {
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
+            curl_setopt($curl, CURLOPT_NOBODY, true);
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'curl';

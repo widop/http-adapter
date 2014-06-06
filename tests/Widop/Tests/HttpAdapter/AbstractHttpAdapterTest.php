@@ -123,4 +123,14 @@ abstract class AbstractHttpAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $this->httpAdapter->postContent('foo');
     }
+
+    public function testHead()
+    {
+        $response = $this->httpAdapter->postContent($this->url, $this->headers);
+
+        $this->assertInstanceOf('Widop\HttpAdapter\HttpResponse', $response);
+        $this->assertSame($this->statusCode, $response->getStatusCode());
+        $this->assertSame($this->url, $response->getUrl());
+        $this->assertNotEmpty($response->getHeaders());
+    }
 }
