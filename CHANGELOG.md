@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 1.1.0 (????-??-??)
+### 1.1.0 (2014-07-20)
 
  * 5285f30 - [Response] Add http status code support
  * 708bb4d - [Response] Add headers support
